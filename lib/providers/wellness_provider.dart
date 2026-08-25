@@ -86,12 +86,15 @@ class WellnessProvider extends ChangeNotifier {
     _initialized = true;
     onboardingComplete = await StorageService.instance.getBool(_onboardKey) ?? false;
     await _load();
-    final seeded = await StorageService.instance.getBool(_shotSeedKey) ?? false;
-    if (!seeded) {
-      _seedShot();
-      onboardingComplete = true;
-      await StorageService.instance.saveBool(_onboardKey, true);
-      await StorageService.instance.saveBool(_shotSeedKey, true);
+    if (await StorageService.instance.getBool(_shotSeedKey) ?? false) {
+      days = {};
+      experiments = [];
+      reminderOn = [false, false, false];
+      weeklyWentWell = '';
+      weeklyHard = '';
+      weeklyNext = '';
+      patternRange = '7';
+      await StorageService.instance.remove(_shotSeedKey);
       await _save();
     }
     await ReminderService.instance.sync(reminderOn);
@@ -381,40 +384,6 @@ class WellnessProvider extends ChangeNotifier {
       return 'On days you sleep 7h+, mood tends to read higher the next entries. $disclaimer';
     }
     return 'Sleep length and mood do not line up clearly in this window. $disclaimer';
-  }
-
-  void _seedShot() {
-    final now = DateTime.now();
-    days = {};
-    for (var i = 13; i >= 0; i--) {
-      final d = now.subtract(Duration(days: i));
-      final k = _dateKey(d);
-      final today = i == 0;
-      final shortNight = i == 2 || i == 6 || i == 10;
-      days[k] = DayLog(
-        date: k,
-        cups: i == 5 ? 0 : (today ? 6 : 5 + (i % 3)),
-        mealsDone: today ? 2 : 2 + (i % 2),
-        moveMin: i == 7 ? 0 : (today ? 30 : 22 + (i % 5) * 4),
-        sleepH: today ? 7.5 : (shortNight ? 6.2 : 7.4 + (i % 5) * 0.15),
-        mood: today ? 4 : (shortNight ? 3 : 4),
-        energy: today ? 4 : (shortNight ? 3 : 4),
-        moodNote: today ? 'Grateful, calm' : '',
-        intention: today ? 'I choose focus and kindness' : '',
-        workout: today ? [true, false, false, false] : [true, true, false, false],
-        mealNotes: today ? ['Oats, berries, nuts', 'Quinoa bowl', '', ''] : ['', '', '', ''],
-        habits: today ? [true, true, true, false] : [true, true, i < 4, false],
-        journal: i <= 2 ? (today ? 'Felt steady after a walk.' : 'Noted the day.') : '',
-        eveningOn: today,
-        careDone: today ? {0, 2} : {},
-      );
-    }
-    experiments = [Experiment(id: 'x-seed', title: 'Morning light + hydration')];
-    reminderOn = [true, true, true];
-    weeklyWentWell = 'Morning walk and water before coffee.';
-    weeklyHard = 'Screens late two nights.';
-    weeklyNext = 'Lights down by 9:30.';
-    patternRange = '7';
   }
 
   Future<void> _persist() async {

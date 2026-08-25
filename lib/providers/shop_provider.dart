@@ -124,13 +124,11 @@ class ShopProvider extends ChangeNotifier {
     _initialized = true;
 
     await _loadLocal();
-    if (kDebugMode) {
-      const grantKey = 'wd_grant_1000_v1';
-      if (!(await StorageService.instance.getBool(grantKey) ?? false)) {
-        _coins += 1000;
-        await StorageService.instance.saveBool(grantKey, true);
-        await _saveLocal();
-      }
+    const grantKey = 'wd_grant_1000_v1';
+    if (await StorageService.instance.getBool(grantKey) ?? false) {
+      _coins = (_coins - 1000).clamp(0, 1 << 30);
+      await StorageService.instance.remove(grantKey);
+      await _saveLocal();
     }
     await _configService.fetch();
 
