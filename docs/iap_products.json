@@ -1,0 +1,18 @@
+{
+  "app": "WellnessDeck",
+  "package": "com.WellnessDeckMNG.WellnessDeck",
+  "config": "https://api2.blwsmartware.net/N251.json",
+  "products": [
+    "wd_pack_1",
+    "wd_pack_2",
+    "wd_pack_3",
+    "wd_pack_4",
+    "wd_pack_5",
+    "wd_pack_6",
+    "wd_pack_7",
+    "wd_pack_8",
+    "wd_pack_9",
+    "wd_pack_10",
+    "wd_remove_ads"
+  ]
+}

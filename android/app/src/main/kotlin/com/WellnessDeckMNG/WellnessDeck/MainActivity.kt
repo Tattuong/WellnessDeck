@@ -1,0 +1,5 @@
+package com.WellnessDeckMNG.WellnessDeck
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity : FlutterActivity()
